@@ -1,0 +1,94 @@
+Test Case 1 – Common Ports on Localhost
+
+Command:
+
+python port_scanner.py 127.0.0.1 20 443
+
+Example Output:
+
+Scanning Host: 127.0.0.1
+Port Range: 20-443
+
+[CLOSED] Port 21
+[OPEN ] Port 80
+[CLOSED] Port 22
+[OPEN ] Port 443
+
+SCAN COMPLETE
+
+Open Ports Found:
+ - 80
+ - 443
+
+Test Case 2 – Custom Port Range
+
+Command:
+
+python port_scanner.py 127.0.0.1 8000 8100
+
+Example Output:
+
+[OPEN ] Port 8080
+[CLOSED] Port 8081
+[CLOSED] Port 8082
+
+Test Case 3 – scanme.nmap.org
+
+Command:
+
+python port_scanner.py scanme.nmap.org 20 100
+
+Example Output:
+
+Resolved IP: xxx.xxx.xxx.xxx
+
+[OPEN ] Port 22
+[CLOSED] Port 23
+[CLOSED] Port 25
+[CLOSED] Port 80
+
+Test Case 4 – Invalid Port Number
+
+Command:
+
+python port_scanner.py 127.0.0.1 70000 70010
+
+Expected Output:
+
+ERROR: Start port must be between 1 and 65535.
+
+Test Case 5 – Invalid Hostname
+
+Command:
+
+python port_scanner.py fakehost123456.com 20 100
+
+Expected Output:
+
+ERROR: Unable to resolve hostname 'fakehost123456.com'
+
+Test Case 6 – Start Port Greater Than End Port
+
+Command:
+
+python port_scanner.py 127.0.0.1 1000 100
+
+Expected Output:
+
+ERROR: Start port cannot be greater than end port.
+
+Test Case 7 – Performance Comparison
+
+Small Range:
+
+python port_scanner.py 127.0.0.1 1 100
+
+Large Range:
+
+python port_scanner.py 127.0.0.1 1 1000
+
+Document:
+
+Range	Ports Scanned	Time
+1-100	    100	      X sec
+1-1000	  1000	    Y sec
