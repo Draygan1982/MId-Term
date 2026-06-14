@@ -1,0 +1,54 @@
+"""
+client.py
+A simple TCP client that connects to the server,
+sends messages, and receives responses.
+"""
+
+import socket
+
+# Server configuration
+HOST = "127.0.0.1"
+PORT = 5000
+
+try:
+    # Create TCP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    print("[CLIENT] Attempting to connect...")
+
+    # Connect to server
+    client_socket.connect((HOST, PORT))
+
+    print(f"[CLIENT] Connected to server at {HOST}:{PORT}")
+
+    while True:
+        # Get user input
+        message = input("Enter message (type 'quit' to exit): ")
+
+        # Send message to server
+        client_socket.send(message.encode("utf-8"))
+
+        # Exit if user enters quit
+        if message.lower() == "quit":
+            print("[CLIENT] Disconnecting from server...")
+            break
+
+        # Receive server response
+        response = client_socket.recv(1024).decode("utf-8")
+        print(f"[SERVER]: {response}")
+
+except ConnectionRefusedError:
+    print("[ERROR] Connection refused. Server is not running.")
+
+except socket.error as err:
+    print(f"[ERROR] Socket Error: {err}")
+
+except Exception as e:
+    print(f"[ERROR] Unexpected Error: {e}")
+
+finally:
+    print("[CLIENT] Closing socket.")
+    try:
+        client_socket.close()
+    except:
+        pass
