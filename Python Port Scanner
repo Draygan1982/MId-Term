@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""
+Simple Port Scanner
+
+Author: Student Name
+Purpose:
+    Scan a specified range of ports on a target host and identify open ports.
+
+Authorized Testing Targets:
+    - localhost (127.0.0.1)
+    - scanme.nmap.org
+
+Usage Examples:
+    python port_scanner.py 127.0.0.1 20 100
+    python port_scanner.py scanme.nmap.org 20 100
+"""
+
+import socket
+import sys
+import time
+
+
+def scan_port(host: str, port: int, timeout: float = 1.0) -> bool:
+    """
+    Attempts to connect to a specific port.
+
+    Args:
+        host: Target hostname or IP address
+        port: Port number to scan
+        timeout: Connection timeout in seconds
+
+    Returns:
+        True if port is open, False otherwise
+    """
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.settimeout(timeout)
+
+            result = sock.connect_ex((host, port))
+
+            if result == 0:
+                return True
+
+    except socket.gaierror:
+        raise ValueError(f"Unable to resolve hostname: {host}")
+
+    except socket.timeout:
+        return False
+
+    except OSError:
+        return False
+
+    return False
+
+
+def validate_port(port: int) -> bool:
+    """
+    Validates that a port is within the valid range.
+
+    Returns:
+        True if valid, False otherwise
+    """
+    return 1 <= port <= 65535
+
+
+def port_scanner(host: str, start_port: int, end_port: int) -> None:
+    """
+    Scans a range of ports on a target host.
+
+    Args:
+        host: Target hostname or IP
+        start_port: Starting port number
+        end_port: Ending port number
+    """
+
+    print("=" * 50)
+    print(f"Scanning Host: {host}")
+    print(f"Port Range: {start_port}-{end_port}")
+    print("=" * 50)
+
+    open_ports = []
+
+    start_time = time.time()
+
+    try:
+        target_ip = socket.gethostbyname(host)
+        print(f"Resolved IP: {target_ip}\n")
+
+    except socket.gaierror:
+        print(f"ERROR: Unable to resolve hostname '{host}'")
+        sys.exit(1)
+
+    try:
+        for port in range(start_port, end_port + 1):
+
+            if scan_port(host, port):
+                print(f"[OPEN ] Port {port}")
+                open_ports.append(port)
+            else:
+                print(f"[CLOSED] Port {port}")
+
+    except KeyboardInterrupt:
+        print("\nScan cancelled by user.")
+        sys.exit(0)
+
+    except Exception as error:
+        print(f"\nUnexpected error: {error}")
+        sys.exit(1)
+
+    elapsed_time = time.time() - start_time
+
+    print("\n" + "=" * 50)
+    print("SCAN COMPLETE")
+    print("=" * 50)
+
+    if open_ports:
+        print("Open Ports Found:")
+        for port in open_ports:
+            print(f" - {port}")
+    else:
+        print("No open ports found.")
+
+    print(f"\nScan Time: {elapsed_time:.2f} seconds")
+
+
+def main():
+    """
+    Main program entry point.
+    """
+
+    if len(sys.argv) != 4:
+        print(
+            "Usage: python port_scanner.py <host> <start_port> <end_port>"
+        )
+        sys.exit(1)
+
+    host = sys.argv[1]
+
+    try:
+        start_port = int(sys.argv[2])
+        end_port = int(sys.argv[3])
+
+    except ValueError:
+        print("ERROR: Port numbers must be integers.")
+        sys.exit(1)
+
+    if not validate_port(start_port):
+        print("ERROR: Start port must be between 1 and 65535.")
+        sys.exit(1)
+
+    if not validate_port(end_port):
+        print("ERROR: End port must be between 1 and 65535.")
+        sys.exit(1)
+
+    if start_port > end_port:
+        print("ERROR: Start port cannot be greater than end port.")
+        sys.exit(1)
+
+    port_scanner(host, start_port, end_port)
+
+
+if __name__ == "__main__":
+    main()
